@@ -37,7 +37,9 @@ def inicializar_base_de_datos():
             descripcion TEXT,
             estado TEXT DEFAULT 'Bandeja de entrada',
             origen TEXT,
-            fecha TEXT
+            fecha TEXT,
+            prioridad TEXT,  -- Columna para guardar la prioridad dada por la IA
+            categoria TEXT   -- Columna para guardar la categoría dada por la IA
         )
     """)
     conexion.commit() # Guardar cambios en el disco
@@ -53,7 +55,7 @@ def guardar_tarea(titulo, descripcion, origen, prioridad, categoria):
     try:
         cursor.execute("""
             INSERT INTO tareas (titulo, descripcion, estado, origen, fecha, prioridad, categoria)
-            VALUES (?, ?, 'Bandeja de entrada', ?, ?)
+            VALUES (?, ?, 'Bandeja de entrada', ?, ?, ?, ?)
         """, (titulo, descripcion, origen, fecha_actual, prioridad, categoria))
         conexion.commit()  # SÍ hacemos commit porque la inserción ha sido limpia
     finally:
@@ -77,7 +79,7 @@ def analizar_tarea_con_ia(texto):
         respuesta_ia = ollama.generate(model='gpt-oss:120b', prompt=prompt_instrucciones)
         resultado_limpio = respuesta_ia['response'].strip()
 
-        prioridad, cargoria = resultado_limpio.split('/')
+        prioridad, categoria = resultado_limpio.split('/')
         return prioridad.strip(), categoria.strip()
     
     except Exception as e:
