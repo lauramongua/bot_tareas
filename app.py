@@ -5,6 +5,7 @@ from PIL import Image
 import os
 import time
 from datetime import datetime
+import plotly.express as px
 
 # === CONFIGURACIONES INICIALES ===
 ruta_actual = os.path.dirname(os.path.abspath(__file__))
@@ -58,6 +59,8 @@ def cargar_datos():
     df = pd.read_sql_query("SELECT * FROM tareas ORDER BY id DESC", conexion)
     conexion.close()
     return df
+
+
 
 def marcar_tarea_completada(id_tarea):
     conexion = sqlite3.connect("tareas.db")
@@ -227,6 +230,7 @@ try:
                 guardar_nueva_categoria(nueva_cat)
 
         # SECCIÓN DE NOTAS RÁPIDAS
+       # SECCIÓN DE NOTAS RÁPIDAS
         st.markdown("<br>📝 **Añadir una Nota**", unsafe_allow_html=True)
         with st.form(key="form_nueva_nota_fija", clear_on_submit=True):
             nota_texto = st.text_area("Nueva Nota", key="input_nota_rapida", label_visibility="collapsed")
@@ -237,28 +241,74 @@ try:
                     try:
                         conn = sqlite3.connect("tareas.db")
                         c = conn.cursor()
-                        
                         titulo_reducido = nota_texto[:50] + "..." if len(nota_texto) > 50 else nota_texto
                         fecha_creacion = datetime.now().strftime("%d %b %H:%M")
-                        
                         c.execute("""
                             INSERT INTO tareas (titulo, descripcion, categoria, prioridad, estado, fecha, origen, fecha_limite)
                             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
                         """, (titulo_reducido.strip(), nota_texto.strip(), "Bandeja de entrada", "Media", "Por hacer", fecha_creacion, "Texto", "Sin fecha"))
-                        
                         conn.commit()
                         conn.close()
-                        
                         st.toast("📌 ¡Nota guardada como nueva tarea!", icon="🚀")
                         time.sleep(0.5)
                         st.rerun()
-                        
                     except Exception as e:
                         st.error(f"Error al transformar nota en tarea: {e}")
                 else:
                     st.warning("Escribe algo antes de guardar.")
                     
-        st.markdown('</div>', unsafe_allow_html=True) # Cierre mi-sidebar-custom
+        # =========================================================
+        # 📊 NUEVO: GRÁFICO DE PRODUCTIVIDAD EN LA BARRA LATERAL
+        # =========================================================
+        st.markdown("<br>📊 **Estado de Tareas**", unsafe_allow_html=True)
+        
+        if not df_tareas.empty:
+            conteo_estados = df_tareas['estado'].value_counts().reset_index()
+            conteo_estados.columns = ['Estado', 'Cantidad']
+            
+         
+           # Mapeo para nombres más cortos
+            conteo_estados['Estado'] = conteo_estados['Estado'].replace({
+                'Por hacer': '⏳ Espera',
+                'Por Hacer': '⏳ Espera',
+                'En Progreso': '⚡ Progreso',
+                'Completada': '✨ Hechas'
+            })
+            
+            # 🛠️ AÑADE ESTA LÍNEA AQUÍ PARA FUSIONAR LAS BARRAS PARTIDAS:
+            conteo_estados = conteo_estados.groupby('Estado', as_index=False).sum()
+            
+            # Gráfico de barras horizontales
+            fig_sidebar = px.bar(
+                conteo_estados,
+                x='Cantidad',
+                y='Estado',
+                orientation='h',
+                template='plotly_dark',
+                color='Estado',
+                color_discrete_map={
+                    '⏳ Espera': '#ff4b4b',
+                    '⚡ Progreso': '#f47b20',
+                    '✨ Hechas': '#25b882'
+                }
+            )
+            
+            # Ajuste de tamaño y eliminación de ejes extra
+            fig_sidebar.update_layout(
+                margin=dict(l=10, r=10, t=5, b=5),
+                height=150,
+                showlegend=False,
+                xaxis=dict(visible=False),
+                yaxis=dict(title=None),
+                paper_bgcolor='rgba(0,0,0,0)',
+                plot_bgcolor='rgba(0,0,0,0)'
+            )
+            
+            st.plotly_chart(fig_sidebar, use_container_width=True, config={'displayModeBar': False})
+        else:
+            st.caption("Sin datos suficientes.")
+            
+        st.markdown('</div>', unsafe_allow_html=True) # <-- Cierre original de tu barra lateral
 
     # 2. BLOQUE DE CONTENIDO PRINCIPAL (COLUMNA DERECHA)
     with col_contenido_principal:
@@ -380,7 +430,6 @@ try:
                                         st.rerun()
                                         
                                 with col_doing_b2:
-                                    # ✔️ Tu botón de terminar de siempre
                                     if st.button("✔️", key=f"kb_done_{t['id']}", use_container_width=True, help="Marcar como Completada"): 
                                         marcar_tarea_completada(t['id'])
                                         

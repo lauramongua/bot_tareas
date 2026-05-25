@@ -69,7 +69,6 @@ def guardar_tarea(titulo, descripcion, origen, prioridad, categoria, fecha_limit
 # FUNCION DE IA OLLAMA
 def analizar_tarea_con_ia(texto):
     """Envía la tarea al gpt-oss para extraer la prioridad, categoría y fecha límite."""
-    # 🔥 MEJORADO: Ahora el prompt entrena a la IA para buscar plazos o fechas de entrega
     prompt_instrucciones = (
         f"Eres un asistente de IA experto en productividad. Analiza la siguiente tarea del usuario, clasifícala y extrae plazos.\n\n"
         f"Tarea: '{texto}'\n\n"
