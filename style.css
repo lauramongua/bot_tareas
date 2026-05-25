@@ -1,0 +1,82 @@
+/* ELIMINAR BORDES INNECESARIOS DE FORMULARIOS */
+div[data-testid="stForm"] {
+    border: none !important;
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+/* Ocultar por completo el sidebar nativo de Streamlit de forma segura */
+[data-testid="stSidebar"], 
+section[data-testid="stSidebar"], 
+[data-testid="stSidebarCollapseButton"] {
+    display: none !important;
+    width: 0px !important;
+}
+
+/* === CONTENEDOR PRINCIPAL: CONTROL DE MÁRGENES DE LA APP === */
+.main .block-container {
+    max-width: 100% !important;
+    padding-top: 1.5rem !important;
+    padding-left: 1rem !important; 
+    padding-right: 1rem !important;
+}
+
+/* === FUENTES Y COMPONENTES GLOBALES === */
+html, body, [class*="css"], p, span, label {
+    font-size: 15px !important;
+}
+
+div[data-testid="stMetricLabel"] > div {
+    font-size: 13px !important;
+    white-space: nowrap !important;
+}
+div[data-testid="stMetricValue"] > div {
+    font-size: 24px !important;
+}
+
+.stCaption, caption, small {
+    font-size: 12px !important;
+}
+h1 {
+    font-size: 28px !important; 
+    font-weight: 700 !important;
+    margin-bottom: 12px !important;
+}
+
+/* =======================================================
+    🛡️ LA BARRA LATERAL PERSONALIZADA (ULTRA SEGURA)
+   ======================================================= */
+.mi-sidebar-custom {
+    background-color: #14151a !important;
+    padding: 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+}
+
+/* === CONTROL DE BOTONES INTERNOS EN EL LATERAL === */
+.mi-sidebar-custom button,
+.tarjeta-acciones button {
+    width: 100% !important;
+    white-space: nowrap !important; /* Mantiene el texto en una sola línea */
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    background-color: #1e1e24 !important;
+    color: #ffffff !important;
+    border: 1px solid #33333a !important;
+    border-radius: 6px !important;
+    font-size: 13px !important;
+    padding: 6px 12px !important;
+}
+
+/* Asegurar que los desplegables ocupen el 100% sin encogerse */
+.mi-sidebar-custom div[data-baseweb="select"] {
+    width: 100% !important;
+}
+
+/* Evitar textos cortados con tres puntos en etiquetas internas */
+.mi-sidebar-custom label p {
+    white-space: nowrap !important;
+}
