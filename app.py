@@ -105,6 +105,13 @@ def renderizar_tarjetas(df_sub, es_completada=False, prefijo=""):
         st.info("No hay tareas en esta sección.")
         return
         
+    colores_categorias = {
+        "Universidad": "#4A90E2",  # Azul
+        "Trabajo": "#F47B20",      # Naranja
+        "Hogar": "#2ECC71",        # Verde
+        "Bandeja de entrada": "#9B59B6", # Morado
+    }
+
     for index, fila in df_sub.iterrows():
         if fila['prioridad'] == "Alta":
             color_p = "#ff4b4b"
@@ -113,6 +120,8 @@ def renderizar_tarjetas(df_sub, es_completada=False, prefijo=""):
         else:
             color_p = "#25b882"
         
+        color_cat = colores_categorias.get(fila['categoria'], "#888888")
+
         tiene_fecha = 'fecha_limite' in fila and fila['fecha_limite'] and fila['fecha_limite'] != "Sin fecha"
         f_limite = fila['fecha_limite'] if tiene_fecha else "Sin fecha"
         
@@ -179,13 +188,12 @@ try:
 
     # 1. BLOQUE DE LA BARRA LATERAL FIJA (COLUMNA IZQUIERDA)
     with col_menu_lateral:
-        # Añadimos un div HTML contenedor personalizado para pintarlo desde el CSS de forma ultra segura
-        st.markdown('<div class="mi-sidebar-custom">', unsafe_allow_html=True)
+        
         
         st.markdown("⚙️ **Configuración**")
         modo_productividad = st.selectbox(
             "Enfoque de Vista:",
-            ["Bandeja Estándar", "Tablero Kanban", "Maratoniano (Time Blocking)", "Creativo (Eisenhower)"],
+            ["Bandeja Estándar", "Tablero Kanban", "Maratoniano (Time Blocking)"],
             key="vista_sel_fija",
             label_visibility="collapsed"
         )
@@ -356,10 +364,27 @@ try:
                             with st.container(border=True):
                                 st.markdown(f"**{t['titulo']}**")
                                 st.caption(f"📦 {t['categoria']} | 🚨 {t['prioridad']}")
+                                
+                                # === REORGANIZACIÓN DE BOTONES EN EN PROGRESO ===
                                 st.markdown('<div class="tarjeta-acciones">', unsafe_allow_html=True)
-                                if st.button("✔️ Terminar", key=f"kb_done_{t['id']}", use_container_width=True): marcar_tarea_completada(t['id'])
+                                col_doing_b1, col_doing_b2 = st.columns(2)
+                                
+                                with col_doing_b1:
+                                    # ⏪ Botón nuevo para volver a "Por Hacer"
+                                    if st.button("⏪", key=f"kb_todo_{t['id']}", use_container_width=True, help="Devolver a Por Hacer"):
+                                        conexion = sqlite3.connect("tareas.db")
+                                        cursor = conexion.cursor()
+                                        cursor.execute("UPDATE tareas SET estado = 'Por Hacer' WHERE id = ?", (t['id'],))
+                                        conexion.commit()
+                                        conexion.close()
+                                        st.rerun()
+                                        
+                                with col_doing_b2:
+                                    # ✔️ Tu botón de terminar de siempre
+                                    if st.button("✔️", key=f"kb_done_{t['id']}", use_container_width=True, help="Marcar como Completada"): 
+                                        marcar_tarea_completada(t['id'])
+                                        
                                 st.markdown('</div>', unsafe_allow_html=True)
-
                 with col_done:
                     st.markdown("<h4 style='color: #25b882; text-align: center; border-bottom: 2px solid #25b882; padding-bottom: 3px;'>✨ Hechas</h4>", unsafe_allow_html=True)
                     df_done = df_filtrado[df_filtrado['estado'] == 'Completada'] if not df_filtrado.empty else pd.DataFrame()
@@ -384,44 +409,6 @@ try:
                             with st.container(border=True):
                                 st.markdown(f"**Bloque: {fila['titulo']}**")
                                 st.markdown(f"<p style='color: #999; font-size:12px; margin: 0;'>{fila['descripcion']}</p>", unsafe_allow_html=True)
-                                if st.button(" ✔️ Completar ", key=f"time_btn_{fila['id']}"): marcar_tarea_completada(fila['id'])
-
-            elif modo_productividad == "Creativo (Eisenhower)":
-                st.subheader("Análisis de Enfoque Antiestrés")
-                if df_pendientes.empty: st.success("¡Matriz limpia!")
-                else:
-                    df_altas = df_pendientes[df_pendientes['prioridad'] == 'Alta']
-                    df_medias = df_pendientes[df_pendientes['prioridad'] == 'Media']
-                    df_bajas = df_pendientes[df_pendientes['prioridad'] == 'Baja']
-                    
-                    if not df_altas.empty:
-                        tarea_reina = df_altas.iloc[0]
-                        df_altas_restantes = df_altas.iloc[1:]
-                    else:
-                        tarea_reina = None; df_altas_restantes = df_altas
-                    
-                    if tarea_reina is not None:
-                        with st.container(border=True):
-                            st.markdown(f"<h4 style='color: #F47B20; margin:0;'>🔥 Hito Crítico Actual: {tarea_reina['titulo']}</h4>", unsafe_allow_html=True)
-                            st.write(f"{tarea_reina['descripcion']}")
-                            if st.button("✔️ Consolidar Hito", key=f"reina_{tarea_reina['id']}"): marcar_tarea_completada(tarea_reina['id'])
-                    
-                    st.markdown("<br>➡️ **Distribución de la Matriz**", unsafe_allow_html=True)
-                    col_izq, col_der = st.columns(2)
-                    with col_izq:
-                        with st.container(border=True):
-                            st.markdown("<h4 style='color: #ff4b4b; margin:0;'>🔴 Urgente e Importante</h4>", unsafe_allow_html=True)
-                            for _, t in df_altas_restantes.iterrows(): st.markdown(f"• {t['titulo']}")
-                        with st.container(border=True):
-                            st.markdown("<h4 style='color: #25b882; margin:0;'>🟢 Planificación Estratégica</h4>", unsafe_allow_html=True)
-                            for _, t in df_medias.iterrows(): st.markdown(f"• {t['titulo']}")
-                    with col_der:
-                        with st.container(border=True):
-                            st.markdown("<h4 style='color: #f47b20; margin:0;'>🟡 Delegación / Quick Wins</h4>", unsafe_allow_html=True)
-                            for _, t in df_bajas.iterrows(): st.markdown(f"• {t['titulo']}")
-                        with st.container(border=True):
-                            st.markdown("<h4 style='color: #888888; margin:0;'>⚫ Brain Dump (Últimas añadidas)</h4>", unsafe_allow_html=True)
-                            for _, t in df_filtrado.tail(2).iterrows(): st.markdown(f"• {t['titulo']}")
-            
+                                if st.button(" ✔️ Completar ", key=f"time_btn_{fila['id']}"): marcar_tarea_completada(fila['id'])            
 except Exception as e:
     st.error(f"Error en la aplicación: {e}")
