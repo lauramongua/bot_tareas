@@ -6,7 +6,7 @@ from datetime import datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 import whisper # Librería para transcribir audio en local
-import ollama #libreria para conectar con gpt-oss
+#import ollama #libreria para conectar con gpt-oss
 
 # Configuración de logs
 logging.basicConfig(
