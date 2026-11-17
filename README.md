@@ -1,46 +1,59 @@
 <div align="center">
-  <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=150&section=header&text=Bot%20Gestor%20de%20Tareas%20con%20IA%20%F0%9F%A4%96&fontSize=34&fontColor=fff&fontAlignY=40&desc=Telegram%20%E2%80%A2%20Whisper%20%E2%80%A2%20Ollama%20%E2%80%A2%20SQLite&descAlignY=65&descSize=16" />
+
+  <h1>Bot Gestor de Tareas con IA</h1>
+  <p><strong>Asistente inteligente en Telegram que transcribe notas de voz en local y clasifica tareas automáticamente con IA en SQLite.</strong></p>
+
+  <p>
+    <a href="https://skillicons.dev">
+      <img src="https://skillicons.dev/icons?i=python,sqlite,vscode,git,github" />
+    </a>
+  </p>
+
+  <p>
+    <a href="#-arquitectura-del-flujo"><img src="https://img.shields.io/badge/01_ARQUITECTURA-FF6B00?style=for-the-badge" /></a>
+    <a href="#-capacidades-del-sistema"><img src="https://img.shields.io/badge/02_CAPACIDADES-1E293B?style=for-the-badge" /></a>
+    <a href="#-stack-técnico"><img src="https://img.shields.io/badge/03_TECNOLOGÍAS-1E293B?style=for-the-badge" /></a>
+    <a href="#-despliegue-local"><img src="https://img.shields.io/badge/04_INSTALACIÓN-FF6B00?style=for-the-badge" /></a>
+  </p>
+
 </div>
 
-Asistente personal en **Telegram** desarrollado en **Python** que permite capturar tareas mediante **mensajes de texto o notas de voz**, transcribirlas en local y clasificarlas automáticamente usando Inteligencia Artificial antes de guardarlas en una base de datos.
+---
+
+<table>
+  <tr>
+    <td width="55%" valign="center">
+      <h3>🎯 Visión del Proyecto</h3>
+      <p>
+        Bot personal desarrollado en <strong>Python</strong> que actúa como una bandeja de entrada inteligente en Telegram. Permite enviar ideas rápidas por texto o audio, las procesa mediante modelos de Inteligencia Artificial ejecutados en local y las organiza en una base de datos relacional.
+      </p>
+      <ul>
+        <li>🎙️ <strong>Voz a texto local:</strong> Transcripción privada con OpenAI Whisper.</li>
+        <li>🧠 <strong>Análisis semántico:</strong> Extracción de prioridad, categoría y plazo con Ollama.</li>
+        <li>🗄️ <strong>Almacenamiento estructurado:</strong> Persistencia automática en SQLite.</li>
+      </ul>
+    </td>
+    <td width="45%" align="center">
+      <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExaG5tZ3F4Y3Z4Y3Z4Y3Z4Y3Z4Y3Z4Y3Z4Y3Z4Y3Z4Y3Z4/L1R1tvI9svkIWwpVYr/giphy.gif" width="100%" alt="AI Automation" />
+    </td>
+  </tr>
+</table>
 
 ---
 
-### ✨ Características Principales
+### ⚙️ 01 Arquitectura del Flujo (Pipeline)
 
-* **🎙️ Transcripción de voz en local (OpenAI Whisper):** Convierte notas de voz (`.ogg`) enviadas por Telegram a texto en español sin depender de APIs externas de pago, eliminando el archivo temporal tras procesarlo.
-* **🧠 Clasificación inteligente con IA (Ollama):** Analiza el contexto del mensaje mediante un modelo LLM (`gpt-oss`) para extraer y asignar automáticamente:
-  * **Prioridad:** `Alta`, `Media` o `Baja`.
-  * **Categoría:** `Trabajo`, `Personal`, `Universidad`, `Hogar` u `Otros`.
-  * **Fecha límite:** Detecta plazos mencionados en lenguaje natural (ej. *"para el martes"*, *"mañana"*).
-* **🗄️ Persistencia de datos en SQLite:** Almacena cada tarea de forma estructurada en una base de datos local (`tareas.db`) registrando título, descripción completa, origen (Texto/Audio), fecha de creación y estado.
+<div align="center">
 
----
-
-### 🛠️ Tecnologías Utilizadas
-
-<p align="left">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=python,sqlite,git,github" />
-  </a>
-</p>
-
-* **[Python-Telegram-Bot](https://python-telegram-bot.org/):** Gestión asíncrona de comandos (`/start`), mensajes de texto y descarga de notas de voz.
-* **[OpenAI Whisper](https://github.com/openai/whisper):** Modelo de reconocimiento de voz ejecutado en local (`base`).
-* **[Ollama](https://ollama.com/):** Ejecución e inferencia del modelo de lenguaje en local para el análisis semántico.
-* **[SQLite3](https://www.sqlite.org/):** Base de datos relacional ligera integrada en Python.
-
----
-
-### 🚀 Instalación y Puesta en Marcha
-
-#### 1. Requisitos previos
-* Tener instalado **Python 3.9+** y **FFmpeg** (necesario para que Whisper procese audios).
-* Tener instalado y ejecutándose **[Ollama](https://ollama.com/)** con el modelo descargado (`ollama run gpt-oss:120b` o el modelo local configurado).
-* Obtener un token de bot en Telegram a través de **[@BotFather](https://t.me/botfather)**.
-
-#### 2. Clonar e instalar dependencias
-```bash
-git clone [https://github.com/lauramongua/bot_tareas.git](https://github.com/lauramongua/bot_tareas.git)
-cd bot_tareas
-pip install python-telegram-bot openai-whisper ollama
+```mermaid
+flowchart LR
+    A["01 Entrada Telegram<br/>(Texto o Nota de Voz .ogg)"] --> B["02 Transcripción Local<br/>(OpenAI Whisper)"]
+    B --> C["03 Inferencia IA<br/>(Ollama LLM)"]
+    C --> D["04 Extracción Datos<br/>(Prioridad / Categoría / Plazo)"]
+    D --> E["05 Persistencia<br/>(Base de datos tareas.db)"]
+    
+    style A fill:#161b22,stroke:#ff6b00,stroke-width:2px,color:#fff
+    style B fill:#161b22,stroke:#38bdf8,stroke-width:2px,color:#fff
+    style C fill:#161b22,stroke:#a855f7,stroke-width:2px,color:#fff
+    style D fill:#161b22,stroke:#38bdf8,stroke-width:2px,color:#fff
+    style E fill:#ff6b00,stroke:#fff,stroke-width:2px,color:#fff
