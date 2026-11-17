@@ -1,6 +1,10 @@
-<div align="center">
-  <img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=gradient&customColorList=6,11,20&height=150&section=header&text=Bot%20Gestor%20de%20Tareas%20con%20IA%20%F0%9F%A4%96&fontSize=34&fontColor=fff&fontAlignY=40&desc=Telegram%20%E2%80%A2%20Whisper%20%E2%80%A2%20Ollama%20%E2%80%A2%20SQLite&descAlignY=65&descSize=16" />
-</div>
+# Bot Gestor de Tareas con IA 🤖
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Telegram](https://img.shields.io/badge/Telegram_Bot-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)
+![OpenAI Whisper](https://img.shields.io/badge/Whisper-412991?style=for-the-badge&logo=openai&logoColor=white)
+![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=ollama&logoColor=white)
+![SQLite](https://img.shields.io/badge/SQLite-07405E?style=for-the-badge&logo=sqlite&logoColor=white)
 
 Asistente personal en **Telegram** desarrollado en **Python** que permite capturar tareas mediante **mensajes de texto o notas de voz**, transcribirlas en local y clasificarlas automáticamente usando Inteligencia Artificial antes de guardarlas en una base de datos.
 
@@ -18,12 +22,6 @@ Asistente personal en **Telegram** desarrollado en **Python** que permite captur
 ---
 
 ### 🛠️ Tecnologías Utilizadas
-
-<p align="left">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=python,sqlite,git,github" />
-  </a>
-</p>
 
 * **[Python-Telegram-Bot](https://python-telegram-bot.org/):** Gestión asíncrona de comandos (`/start`), mensajes de texto y descarga de notas de voz.
 * **[OpenAI Whisper](https://github.com/openai/whisper):** Modelo de reconocimiento de voz ejecutado en local (`base`).
